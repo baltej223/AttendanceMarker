@@ -48,13 +48,13 @@ const users = {
     }
 }
 //ces
-let u = new user("8:00")
-u.name("baltej");
-u.link('A');
-u.email('b');
-u.group('c');
-u.rollno("d");
-u.cookie("e");
-u.date("f");
+// let u = new user("8:00")
+// u.name("baltej");
+// u.link('A');
+// u.email('b');
+// u.group('c');
+// u.rollno("d");
+// u.cookie("e");
+// u.date("f");
 
-u.add();
+// u.add();
