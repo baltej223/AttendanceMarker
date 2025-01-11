@@ -1,13 +1,69 @@
 'use strict';
 //refernce - https://github.com/anthonysukotjo/google-form-bot
 const puppeteer = require('puppeteer');
+const userManager = require('./userManager.js');
+
+const http = require('http');
+
+const PORT = 3000; //port number the server will listen at
 
 const config = {
+  // formLink: 'https://docs.google.com/forms/d/e/1FAIpQLSem5p1dFyi_LBewrSftI1r2cpDf20bsqoZ9gx9nE7nyiir22g/viewform?usp=dialog',  //@baltej223
   formLink: 'https://docs.google.com/forms/d/e/1FAIpQLScN-IndYJtjTEsoAzPzgxqUYwWs4Nbll_wZ0vEoe6xEa1JjBA/viewform?usp=header',
+  
   email: 'sarthaktyagi2810@gmail.com',
   monitorInterval: 5000,
   debug: true
 };
+
+// post req will look like 
+// {"time":"8:00","link":"link","name":"name","email":"email", "group":"group", "rollno":"rollno","cookie":"cookie"}
+const server = http.createServer((req, res) => {
+  // Check if the request is a POST request to the /submit endpoint
+  if (req.method === 'POST' && req.url === '/') {
+      let body = '';
+
+      // Collecting data chunks
+      req.on('data', chunk => {
+          body += chunk.toString();
+      });
+
+      // When all data is received
+      req.on('end', () => {
+          const data = JSON.parse(body);
+          // console.log('Received POST data:', data);
+          if (data==undefined){
+            res.writeHead(400, { 'Content-Type': 'text/plain' });
+            res.end('Bad Request');
+          }
+          console.log("recevied: ",data["time"],data["link"],data["name"],data["email"],data["group"],data["rollno"],data["cookie"]);
+          if (data["time"]&&data["link"]&&data["name"]&&data["email"]&&data["group"]&&data["rollno"]&&data["cookie"]&&data["date"]){
+            // received data is comp
+            let newUser = new userManager(data.time);
+            newUser.link(data.link);
+            newUser.name(data.name);
+            newUser.email(data.email);
+            newUser.group(data.group);
+            newUser.rollno(data.rollno);
+            newUser.cookie(data.cookie);
+            newUser.date(data.date)
+            newUser.add();
+          }
+          // Send response back
+          res.writeHead(200, { 'Content-Type': 'text/plain' });
+          res.end('POST request received');
+      });
+  } else {
+      // error
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('Not Found');
+  }
+});
+
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
 
 async function fillForm() {
   let browser;
@@ -91,6 +147,9 @@ async function fillForm() {
     }
   }
 }
+
+
+
 
 async function monitorAndFill() {
   console.log("Starting form monitor...");
