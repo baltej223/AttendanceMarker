@@ -3,7 +3,7 @@ let JsonDatabase  = require("./JsonDatabase.js")
 let db = new JsonDatabase(".","users")
 // db.create_database()
 
-class user{
+class User{
     constructor(time){
         this.time = time.trim();
     }
@@ -32,6 +32,7 @@ class user{
         let database = db.read_database()
         console.log(database)
         let userAtCurrentTime = database[this.time]
+        console.log("user at currrect time:",userAtCurrentTime)
         // console.log(typeof userAtCurrentTime);
         try{
         db.insert_into(this.time,[...userAtCurrentTime,[this.link,this.name, this.email, this.group, this.rollno, this.cookie, this.date]]);
@@ -47,6 +48,7 @@ const users = {
         return db.read_database()[time];
     }
 }
+module.exports = User;
 //ces
 // let u = new user("8:00")
 // u.name("baltej");
