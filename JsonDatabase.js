@@ -1,7 +1,7 @@
-const fs = require('fs');
-const path = require('path');
-const jsonfile = require('jsonfile');
-const readline = require('readline');
+import fs from 'fs';
+import path from 'path';
+import jsonfile from 'jsonfile';
+import readline from 'readline';
 
 class DatabaseError extends Error {}
 
@@ -150,4 +150,5 @@ class JsonDatabase {
     }
 }
 
-module.exports = JsonDatabase;
+// module.exports = JsonDatabase;
+export default JsonDatabase;

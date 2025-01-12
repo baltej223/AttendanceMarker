@@ -1,15 +1,18 @@
 'use strict';
 //refernce - https://github.com/anthonysukotjo/google-form-bot
-const puppeteer = require('puppeteer');
-const userManager = require('./userManager.js');
+// const puppeteer = require('puppeteer');
+import puppeteer from 'puppeteer';
+// const userManager = require('./userManager.js');
+import User from "./userManager.js"
+let userManager = User;
 
-const http = require('http');
+import http from 'http';
 
 const PORT = 3000; //port number the server will listen at
 
 const config = {
-  // formLink: 'https://docs.google.com/forms/d/e/1FAIpQLSem5p1dFyi_LBewrSftI1r2cpDf20bsqoZ9gx9nE7nyiir22g/viewform?usp=dialog',  //@baltej223
-  formLink: 'https://docs.google.com/forms/d/e/1FAIpQLScN-IndYJtjTEsoAzPzgxqUYwWs4Nbll_wZ0vEoe6xEa1JjBA/viewform?usp=header',
+  formLink: 'https://docs.google.com/forms/d/e/1FAIpQLSem5p1dFyi_LBewrSftI1r2cpDf20bsqoZ9gx9nE7nyiir22g/viewform?usp=dialog',  //@baltej223
+  // formLink: 'https://docs.google.com/forms/d/e/1FAIpQLScN-IndYJtjTEsoAzPzgxqUYwWs4Nbll_wZ0vEoe6xEa1JjBA/viewform?usp=header',
   
   email: 'sarthaktyagi2810@gmail.com',
   monitorInterval: 5000,
@@ -51,7 +54,7 @@ const server = http.createServer((req, res) => {
           }
           // Send response back
           res.writeHead(200, { 'Content-Type': 'text/plain' });
-          res.end('POST request received');
+          res.end('Data added Successfully!');
       });
   } else {
       // error
@@ -63,33 +66,40 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+// I though to put post req handler code and form fill code in diffrent files but this will not allow
+// Any intraction between post req handler code and form fill code
 
+// ----- //
+
+// Basically it wont work when there will appear a 
+// You will need to signin dialog.
+// And this dialog only appears when there is a record this email checkbox option.
 
 async function fillForm() {
   let browser;
   
   try {
     browser = await puppeteer.launch({
-      headless: true,
+      headless: false,
       args: ['--no-sandbox'],
     });
 
-    const page = await browser.newPage();
+    const page = await browser.newPage(); // for opening a new page
     console.log("Opening form...");
 
-    await page.goto(config.formLink, { waitUntil: 'networkidle2' });
-    const title = await page.$eval("title", el => el.textContent);
+    await page.goto(config.formLink, { waitUntil: 'networkidle2' });  // for opening some link, untile network in stable
+    const title = await page.$eval("title", el => el.textContent); //mdn : This method finds the first element within the page that matches the selector and passes the result as the first argument to the pageFunction.
     console.log("Form opened");
     console.log("Form Title:", title);
     await page.waitForSelector('input.whsOnd.zHQkBf');
-    const inputField = await page.$('input.whsOnd.zHQkBf');
+    const inputField = await page.$('input.whsOnd.zHQkBf'); // mdn: Finds the first element that matches the selector. If no element matches the selector, the return value resolves to null
     
     if (!inputField) {
       throw new Error('Could not find input field');
     }
 
-    await page.evaluate(el => el.value = '', inputField);
-    await inputField.type(config.email);
+    await page.evaluate(el => el.value = '', inputField);  // runs some js in page's context basically will run js as if we run it in console.
+    await inputField.type(config.email); // for giving a vibe of manually typing
     console.log("Email entered:", config.email);
     const submitSelectors = [
       'div[role="button"][jsname="M2UYVd"]',

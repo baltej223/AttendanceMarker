@@ -1,6 +1,8 @@
 {
+  "type": "module",
   "dependencies": {
     "jsonfile": "^6.1.0",
     "puppeteer": "^23.11.1"
   }
+  
 }
