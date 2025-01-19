@@ -1,8 +1,22 @@
 // let JsonDatabase  = require("./JsonDatabase.js")
-import JsonDatabase from "./JsonDatabase.js"
-
-let db = new JsonDatabase(".","users")
+// import JsonDatabase from "./JsonDatabase.js"
+import mongoose from "mongoose";
+// import { connectDB } from "./database";
+// let db = new JsonDatabase(".","users")
 // db.create_database()
+
+let userSchema = mongoose.Schema({
+    time:String,
+    link:String,
+    name:String,
+    email:String,
+    group:String,
+    rollno:String,
+    cookie:String, 
+    date:String,
+});
+
+const user = mongoose.model("user",userSchema,"users");
 
 export default class User{
     constructor(time){
@@ -30,24 +44,35 @@ export default class User{
         this.date = date.trim();
     }
     add(){
-        let database = db.read_database()
-        console.log(database)
-        let userAtCurrentTime = database[this.time]
-        console.log("user at currrect time:",userAtCurrentTime)
-        console.log(typeof userAtCurrentTime);
+        // let database = db.read_database()
+        // console.log(database)
+        // let userAtCurrentTime = database[this.time]
+        // console.log("user at currrect time:",userAtCurrentTime)
+        // console.log(typeof userAtCurrentTime);
+        // try{
+        // db.insert_into(this.time,[...userAtCurrentTime,[this.link,this.name, this.email, this.group, this.rollno, this.cookie, this.date]]);
+        // }
+        // catch(e){
+        //     console.error("Error While adding user to json file, Error is:", e);
+        // }
         try{
-        db.insert_into(this.time,[...userAtCurrentTime,[this.link,this.name, this.email, this.group, this.rollno, this.cookie, this.date]]);
+            let _user = new user({
+                time:this.time,
+                link:this.link,
+                name:this.name, 
+                email:this.email, 
+                group:this.group,
+                rollno:this.rollno,
+                cookie: this.cookie,
+                date: this.date})
+                _user.save();
         }
         catch(e){
-            console.error("Error While adding user to json file, Error is:", e);
+            console.log(e);
         }
     }
-    oprations(){
-
-    }
-    
 }
-const oprations = {
+export const oprations = {
     usersAt:(time)=>{
         return db.read_database()[time];
     },
