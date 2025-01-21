@@ -46,7 +46,13 @@ export async function POST(req) {
   // console.log(String(user));
   if (user) {
     // Respond with success
+    if (await User.findOne({cookie:{$eq:loginCookie}}) == null){
     await User.updateOne({email},{cookie:loginCookie});
+    }
+    else{
+      loginCookie = GenrateRandomCookie();
+      await User.updateOne({email},{cookie:loginCookie});
+    }
     // cookiesToSave.save();
     return NextResponse.json({ cookies: {login:loginCookie}});
   } else {

@@ -1,23 +1,30 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Navbar from "@/comps/navbar";
 import Link from 'next/link'
 import { User } from "@/database.js";
-import mongoose from "mongoose";
+import { redirect } from "next/navigation";
 
+// // Hydration errors in Next.js typically occur when there is a mismatch
+//  between the server-rendered HTML and the client-rendered HTML.
+
+// Common causes and solutions for hydration errors:
+// Conditional Rendering: Ensure that any conditional rendering logic is consistent between the server and client. For example, if you are checking for cookies or local storage, make sure this check is done only on the client side.
+// Client-Side Only Code: Ensure that any code that should only run on the client side is wrapped in a useEffect hook.
+// Unique Keys for Lists: Ensure that any lists rendered with .map() have unique keys.
 
 const Login = () => {
-  // mongoose.connect('mongodb://127.0.0.1:27017/test')
-  // .then(()=>{
-  // });
-  
-  // if (isConnected){
+  useEffect(()=>{
+    if(document.cookie){
+      redirect("/attendence");
+    }
+  },[]);
+  //done
+
   let emailRef = useRef("");
   let passwordRef = useRef("");
 
-  useEffect(()=>{
-    
-  },[]);
+  let [loginSuccessful,setLoginSuccessful] = useState(false);
 
   const handelSubmit = async (e)=>{
     e.preventDefault();
@@ -31,8 +38,21 @@ const Login = () => {
   
     const data = await response.json();
     console.log(data);
-    // document.cookie=data.cookies.login;
+    if (data.cookies==undefined){
+      alert("Wrong Email and password");
+    }
+    else{
+      alert("login successful!");
+        document.cookie=data.cookies.login;
+      setLoginSuccessful(true);
+    }
   }
+
+  useEffect(()=>{
+    if (loginSuccessful){
+      redirect("/attendence");
+    }
+  },[loginSuccessful]);
 
   return(
     <>
