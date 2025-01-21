@@ -7,48 +7,38 @@ import { redirect } from 'next/navigation'
 
 
 const Attendenceform = ({className}) => {
-  const handleSubmit = (e) => {
+  const  handleSubmit = async (e) => {
     e.preventDefault();
-    let questionLength = questionRefs.current.length;
-    let passwordLength = passwordRefs.current.length;
-    (questionLength === passwordLength )?null:
-    console.error("Some Error occured");
-    let a = 
-    {
-      link:"link",
-      time:"time",
-      totalQuestions:"total ques",
-      questions:[
-        {
-        index:1,
-        statement:"statement",
-        answer:"answer"
-      },
-      {
-        index:2,
-        statement:"statement",
-        answer:"answer"
-      }
-      ]
-    }
-    
+    let link = linkRef.current.value;
+    let time = timeRef.current.value;    
+    let req = {link:link, time:time, questions:questions};
+
+    const response = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    });   
+console.log(JSON.stringify(req));
   }
 
 
   let linkRef = useRef("");
   let timeRef = useRef("");
-  let expRef = useRef("");
+  
   let questionRefs = useRef([]);
   let [questions, setQuestions] = useState(
     [
       {
-        index:1,
+        index:0,
         question:"", 
         answer:""
       }
     ]
   ); 
 
+useEffect(()=>{
+console.log(JSON.stringify(questions));
+},[questions]);
 
     return(
     <>
@@ -78,34 +68,27 @@ const Attendenceform = ({className}) => {
         />
       </div>
 
-
-
-
       {
-      questions.map((question)=>{
+      questions.map((question,index)=>{
         return (
-        <div className="mb-4" key={question.index} >
+        <div className="mb-4" key={index} datakey={question.index}>
         <label htmlFor="link" className="block text-sm font-medium text-gray-700 mb-2">
           Question
         </label>
         <input
         type="text"
-          ref={questionRefs[question.length]}
           required
-          // defaultValue={"Example Question"}
-          // value={question.question}
-          
+          defaultValue={question.question}
 
           onChange={(e)=>{
-            console.log("questions: ",JSON.stringify(questions))
             setQuestions((_questions)=>{
-              let questionsCopy = _questions;
-              _questions.pop();
-              return [..._questions, {
-                index:questionsCopy.length,
+              let prevQs = _questions.slice(0,_questions.length-1);
+              return [...prevQs, {
+                index:_questions.length,
                 question:e.target.value,
-                answer:questions[questions.length-1].answer
+                 answer:_questions[_questions.length-1].answer
               }]
+              
             });
           }}
           
@@ -118,8 +101,20 @@ const Attendenceform = ({className}) => {
         <input
           type="text"
           required
-          defaultValue={"Example Question"}
-          // value={question.answer}
+          defaultValue={question.answer}
+          
+          onChange={(e)=>{
+            setQuestions((_questions)=>{
+
+              let prevQs = _questions.slice(0,_questions.length-1);
+              return [...prevQs, {
+                index:_questions.length,
+                question:_questions[_questions.length-1].question,
+                 answer:e.target.value
+              }]
+            });
+          }}
+
           className="w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300"
         />
       </div>)
