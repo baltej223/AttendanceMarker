@@ -1,9 +1,5 @@
 "use server";
-
-import { json } from "express";
 import mongoose from "mongoose";
-import { cookies } from "next/headers";
-import { stringify } from "querystring";
 
 let userSchema = new mongoose.Schema({
     username:String,
@@ -45,13 +41,26 @@ const UserData = mongoose.models.UserData || mongoose.model("UserData", userData
 
 const attendance = mongoose.models.attendance || mongoose.model("attendance",attendanceSchema);
 
-const connectDB = async () => {
-    if (mongoose.connections[0].readyState) {
-      return;
-    }
-    await mongoose.connect('mongodb://127.0.0.1:27017/user');
-    console.log("Connected to MongoDB");
-  };
+let cached = global.mongoose;
+  if (!cached) {
+    cached = global.mongoose = { connection: null, promise: null };
+  }
   
-  const User = mongoose.models.User || mongoose.model("User", userSchema);
-  export { connectDB, User, UserData, attendance};
+async function connectDB() {
+  if (cached.connection) {
+    return cached.connection;
+  }
+
+  if (!cached.promise) {
+    const promise = mongoose.connect(process.env.MONGODB_URI);
+
+    cached.promise = promise;
+  }
+
+  cached.connection = await cached.promise;
+  return cached.connection;
+};
+
+  
+const User = mongoose.models.User || mongoose.model("User", userSchema);
+export { connectDB, User, UserData, attendance};
